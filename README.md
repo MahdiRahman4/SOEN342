@@ -11,5 +11,5 @@
 - Mahdi Rahman : Use case diagram, domain model, refining SSD's
 ## Iteration II
 - Abderrahmane Bensassi-Nour :
-- Omar Ghazaly :
+- Omar Ghazaly : System interaction diagrams
 - Mahdi Rahman : Updated past diagrams, POC code
