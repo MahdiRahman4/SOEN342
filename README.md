@@ -10,6 +10,6 @@
 - Omar Ghazaly : Operation contracts and critical scenario
 - Mahdi Rahman : Use case diagram, domain model, refining SSD's
 ## Iteration II
-- Abderrahmane Bensassi-Nour :
+- Abderrahmane Bensassi-Nour : Verifying work done
 - Omar Ghazaly : System interaction diagrams
 - Mahdi Rahman : Updated past diagrams, POC code
