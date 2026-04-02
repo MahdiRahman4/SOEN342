@@ -1,0 +1,64 @@
+-- ===========================================================================
+-- SOEN 342 — Iteration III
+-- OCL Formal Constraints
+-- ===========================================================================
+--
+-- Class/property names below match the UML class diagram submitted for
+-- Iteration III (updated class diagram).
+--
+-- Relevant classes:
+--   Task            : id, title, description, creationDate, dueDate,
+--                     priority: Priority, status: Status, recurrence: Recurrence,
+--                     project: Project [0..1], collaborator: Collaborator [0..1],
+--                     subtasks: Subtask [0..*], tags: String [0..*]
+--   Subtask         : id, title, status: Status, parentTask: Task
+--   Collaborator    : id, name, category: CollaboratorCategory,
+--                     tasks: Task [0..*]  (derived, reverse of Task.collaborator)
+--   CollaboratorCategory (enum) : JUNIOR, INTERMEDIATE, SENIOR
+--                     openTaskLimit: Integer
+--   Status (enum)   : OPEN, COMPLETED, CANCELLED
+-- ===========================================================================
+
+
+-- ---------------------------------------------------------------------------
+-- Constraint 1
+-- "A task cannot have more than 20 sub-tasks."
+-- ---------------------------------------------------------------------------
+context Task
+inv MaxSubtasks:
+    self.subtasks->size() <= 20
+
+
+-- ---------------------------------------------------------------------------
+-- Constraint 2
+-- "The number of open tasks without a due date should not exceed 50."
+--
+-- Note: dueDate is typed String; oclIsUndefined() here means the string is
+-- empty (no due date provided), consistent with the implementation.
+-- ---------------------------------------------------------------------------
+context Task
+inv OpenNoDueDateLimit:
+    Task.allInstances()
+        ->select(t | t.status = Status::OPEN and t.dueDate.oclIsUndefined())
+        ->size() <= 50
+
+
+-- ---------------------------------------------------------------------------
+-- Constraint 3
+-- "The limit for open tasks for each collaborator category is a positive integer."
+-- ---------------------------------------------------------------------------
+context CollaboratorCategory
+inv CategoryLimitPositive:
+    self.openTaskLimit > 0
+
+
+-- ---------------------------------------------------------------------------
+-- Constraint 4
+-- "No collaborator must be overloaded."
+-- (the number of assigned tasks that are open must not exceed the limit.)
+-- ---------------------------------------------------------------------------
+context Collaborator
+inv NoOverload:
+    Task.allInstances()
+        ->select(t | t.collaborator = self and t.status = Status::OPEN)
+        ->size() <= self.category.openTaskLimit

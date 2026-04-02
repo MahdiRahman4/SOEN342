@@ -1,0 +1,17 @@
+# Assignment instructions (PDFs — not part of the submission)
+instructions/
+
+# Maven build output
+Iteration3/target/
+
+# Downloaded dependency JARs (fetched by build-run.ps1)
+Iteration3/lib/
+
+# Runtime SQLite database (created on first run, not source code)
+taskmanager.db
+Iteration3/taskmanager.db
+
+# OS / IDE noise
+.DS_Store
+Thumbs.db
+*.class
