@@ -1,0 +1,90 @@
+@startuml DataModel
+title Task Management System — Data Model (SQLite)
+
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor White
+  BorderColor Black
+}
+
+' ─────────────────────────────────────────────
+' Tables
+' ─────────────────────────────────────────────
+
+entity "projects" as projects {
+  * id          : INTEGER  <<PK, AUTOINCREMENT>>
+  --
+  * name        : TEXT     <<UNIQUE>>
+    description : TEXT     DEFAULT ''
+}
+
+entity "collaborators" as collaborators {
+  * id         : INTEGER  <<PK, AUTOINCREMENT>>
+  --
+  * name       : TEXT
+  * category   : TEXT     'JUNIOR | INTERMEDIATE | SENIOR'
+    project_id : INTEGER  <<FK → projects.id>>
+}
+
+entity "tasks" as tasks {
+  * id              : INTEGER  <<PK, AUTOINCREMENT>>
+  --
+  * title           : TEXT
+    description     : TEXT     DEFAULT ''
+  * creation_date   : TEXT     'yyyy-MM-dd'
+    due_date        : TEXT     'yyyy-MM-dd, empty if none'
+  * priority        : TEXT     DEFAULT 'MEDIUM'
+  * status          : TEXT     DEFAULT 'OPEN'
+  * recurrence      : TEXT     DEFAULT 'NONE'
+    project_id      : INTEGER  <<FK → projects.id>>
+    collaborator_id : INTEGER  <<FK → collaborators.id>>
+}
+
+entity "subtasks" as subtasks {
+  * id             : INTEGER  <<PK, AUTOINCREMENT>>
+  --
+  * title          : TEXT
+  * status         : TEXT     DEFAULT 'OPEN'
+  * parent_task_id : INTEGER  <<FK → tasks.id>>
+}
+
+entity "task_tags" as task_tags {
+  * task_id : INTEGER  <<PK, FK → tasks.id>>
+  * tag     : TEXT     <<PK>>
+}
+
+' ─────────────────────────────────────────────
+' Relationships
+' ─────────────────────────────────────────────
+
+projects    ||--o{ collaborators : "has (defined under)"
+projects    ||--o{ tasks         : "groups"
+collaborators |o--o{ tasks      : "assigned to"
+tasks       ||--o{ subtasks     : "contains (cascade delete)"
+tasks       ||--o{ task_tags    : "tagged with (cascade delete)"
+
+note bottom of collaborators
+  category values: JUNIOR (limit 10),
+  INTERMEDIATE (limit 5), SENIOR (limit 2)
+  — enforced in domain layer, not DB constraint
+end note
+
+note bottom of tasks
+  priority: LOW | MEDIUM | HIGH
+  status:   OPEN | COMPLETED | CANCELLED
+  recurrence: NONE | DAILY | WEEKLY | MONTHLY
+  due_date empty string means no due date
+end note
+
+note right of subtasks
+  ON DELETE CASCADE: deleting a task
+  automatically removes its subtasks
+end note
+
+note right of task_tags
+  Composite PK (task_id, tag)
+  prevents duplicate tags per task.
+  ON DELETE CASCADE mirrors subtasks.
+end note
+
+@enduml
